@@ -22,9 +22,8 @@ var client = &http.Client{Transport: &tr}
 
 func WriteEntry(entry *entity.LogEntry) {
 	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
+	_ := json.NewEncoder(&buf)
 
 	req, _ := http.NewRequest(http.MethodPost, *logserviceURL, &buf)
-	client.Do(req)
 	_, _ := client.Do(req)
 }
