@@ -23,9 +23,13 @@ jobs:
           go-version: '1.21'
       
       - name: Run Linter for Each Microservice
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
-          only-new-issues: true
-          args: --out-format=colored-line-number
+        run: |
+          for dir in dataservice db loadbalancer logservice web; do
+            if [ -f "$dir/go.mod" ]; then
+              echo "Running golangci-lint for $dir..."
+              (cd "$dir" && golangci-lint run --out-format=colored-line-number) || exit 1
+            else
+              echo "Skipping $dir (no go.mod found)"
+            fi
+          done
           
