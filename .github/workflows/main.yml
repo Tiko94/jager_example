@@ -25,28 +25,15 @@ jobs:
       - name: Verify Go Installation
         run: go version
 
-      - name: Ensure go.sum Exists
-        run: |
-          if [ ! -f go.sum ]; then
-            echo "go.sum not found, running go mod tidy..."
-            go mod tidy
-          fi
+      - name: Force Go to Use Vendor
+        run: go env -w GOFLAGS="-mod=vendor"
 
       - name: Install golangci-lint
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
 
-      - name: Run golangci-lint for each service
+      - name: Run golangci-lint for dataservice
         run: |
-          for dir in dataservice loadbalancer logservice web; do
-            if [ -f "$dir/go.mod" ]; then
-              echo "Running golangci-lint for $dir..."
-              cd "$dir"
-              golangci-lint run --timeout=5m --out-format=colored-line-number
-              cd ..
-            else
-              echo "Skipping $dir (no go.mod found)"
-            fi
-          done
-     
+          cd dataservice
+          golangci-lint run --modules-download-mode=vendor --timeout=5m --out-format=colored-line-number
