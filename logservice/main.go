@@ -27,7 +27,9 @@ func main() {
 	f, _ := os.Create(logPath)
 	f.Close()
 
-	go http.ListenAndServe(":6000", nil)
+	if err := http.ListenAndServe(":6000", nil); err != nil {
+        log.Printf("Server failed: %v", err)
+    }
 
 	go writeLog()
 

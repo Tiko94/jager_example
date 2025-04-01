@@ -24,7 +24,16 @@ func WriteEntry(entry *entity.LogEntry) {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 
-	enc.Encode(entry)
+	if err := enc.Encode(entry); err != nil {
+		// Handle the error here, e.g., log it or return it
+		log.Printf("Failed to encode entry: %v", err)
+	}
 	req, _ := http.NewRequest(http.MethodPost, *logserviceURL, &buf)
 	client.Do(req)
+	resp, err := client.Do(req)
+	if err != nil {
+    	// Handle the error here, e.g., log it or return it
+    	log.Printf("Failed to send request: %v", err)
+   	 return err // Or handle it in a way that fits your flow
+	}
 }
