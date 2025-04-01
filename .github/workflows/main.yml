@@ -32,7 +32,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          for d in dataservice db loadbalancer logservice web; do
+          for d in dataservice loadbalancer logservice web; do
             echo "Installing dependencies in $d"
             (cd "$d" && go mod tidy && go mod download)
           done
@@ -40,7 +40,7 @@ jobs:
       - name: Build Go Binaries
         run: |
           mkdir -p bin
-          for d in dataservice db loadbalancer logservice web; do
+          for d in dataservice loadbalancer logservice web; do
             echo "Building $d"
             go build -o "bin/$d" "./$d"
           done
