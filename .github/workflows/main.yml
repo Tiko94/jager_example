@@ -3,10 +3,10 @@ name: Jager CI/CD
 on:
   push:
     branches:
-      - main  # Runs on every push to main
+      - main
   pull_request:
     branches:
-      - main  # Runs on every pull request to main
+      - main
   workflow_dispatch:
 
 jobs:
@@ -16,30 +16,33 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
-      - name: "Set up Go"
-        uses:  actions/setup-go@v5
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
           go-version: '1.21'
 
-      - name: Ensure go.sum Exists
+      - name: Ensure go.sum Exists and Cache Go Modules
         run: |
-          for dir in dataservice loadbalancer logservice web; do
+          for dir in dataservice db loadbalancer logservice web; do
             if [ -f "$dir/go.mod" ]; then
-              echo "Generating go.sum for $dir..."
+              echo "Ensuring go.sum exists for $dir..."
               (cd "$dir" && go mod tidy)
+
+              echo "Caching Go modules for $dir..."
+              echo "::group::Cache Go modules for $dir"
+              GOCACHE_DIR="$HOME/.cache/go-build-$dir"
+              GOPATH_MOD_DIR="$HOME/go/pkg/mod-$dir"
+              echo "GOCACHE_DIR=$GOCACHE_DIR"
+              echo "GOPATH_MOD_DIR=$GOPATH_MOD_DIR"
+
+              # Cache the dependencies
+              echo "::save-state name=go-mod-cache-$dir::$GOCACHE_DIR"
+              echo "::save-state name=go-pkg-cache-$dir::$GOPATH_MOD_DIR"
             else
               echo "Skipping $dir (no go.mod found)"
             fi
           done
-
-      - name: Cache Go Modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
 
       - name: Install golangci-lint
         run: |
@@ -48,7 +51,7 @@ jobs:
 
       - name: Run Linter for Each Microservice
         run: |
-          for dir in dataservice loadbalancer logservice web; do
+          for dir in dataservice db loadbalancer logservice web; do
             if [ -f "$dir/go.mod" ]; then
               echo "Running golangci-lint for $dir..."
               (cd "$dir" && golangci-lint run --out-format=colored-line-number) || exit 1
@@ -56,4 +59,3 @@ jobs:
               echo "Skipping $dir (no go.mod found)"
             fi
           done
-          
