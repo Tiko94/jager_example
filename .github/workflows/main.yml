@@ -23,4 +23,5 @@ jobs:
           go-version: '1.21'
       
       - name: Install Dependencies
+        working-directory: ./dataservice
         run: go mod tidy
