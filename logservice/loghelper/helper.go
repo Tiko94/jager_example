@@ -34,6 +34,5 @@ func WriteEntry(entry *entity.LogEntry) {
 	if err != nil {
     	// Handle the error here, e.g., log it or return it
     	log.Printf("Failed to send request: %v", err)
-   	 return err // Or handle it in a way that fits your flow
 	}
 }
