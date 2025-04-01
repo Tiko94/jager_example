@@ -80,7 +80,10 @@ func HandleHealthcheck(w http.ResponseWriter, r *http.Request) {
 	defer rootSpan.Finish()
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(`{"status":"OK"}`))
+	_, err := w.Write([]byte(`{"status":"OK"}`))
+	if err != nil {
+		log.Printf("Failed to write response: %v", err)
+	}	
 }
 
 func HandleRequest(w http.ResponseWriter, r *http.Request) {
@@ -107,7 +110,7 @@ func HandleRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	default:
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "Unknown request"}`))
+		
 	}
 }
 
@@ -128,11 +131,16 @@ func HandleGetComments(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		_, err := w.Write([]byte(`{"error": "Unknown request"}`))
+		if err != nil {
+			log.Printf("Failed to write response: %v", err)
+		}
 	}
 
 	enc := json.NewEncoder(w)
-	enc.Encode(comments)
+	if err := enc.Encode(comments); err != nil {
+		log.Printf("Failed to encode comments: %v", err)
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -152,7 +160,11 @@ func HandleCreateComment(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rootSpan.SetTag("error", true)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		msg := `{"error":"` + err.Error() + `"}`
+		_, writeErr := w.Write([]byte(msg))
+		if writeErr != nil {
+			log.Printf("Failed to write error response: %v", writeErr)
+		}
 		return
 	}
 
@@ -163,11 +175,15 @@ func HandleCreateComment(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		if writeErr != nil {
+			log.Printf("Failed to write error response: %v", writeErr)
+		}
 	}
 
 	enc := json.NewEncoder(w)
-	enc.Encode(comment)
+	if err := enc.Encode(comment); err != nil {
+		log.Printf("Failed to encode comment: %v", err)
+	}
 
 	w.WriteHeader(http.StatusCreated)
 }
@@ -182,7 +198,9 @@ func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rootSpan.SetTag("error", true)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		if writeErr != nil {
+			log.Printf("Failed to write error response: %v", writeErr)
+		}
 		return
 	}
 
@@ -193,12 +211,16 @@ func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		if writeErr != nil {
+			log.Printf("Failed to write error response: %v", writeErr)
+		}
 		return
 	}
 
 	enc := json.NewEncoder(w)
-	enc.Encode(blogPost)
+	if err := enc.Encode(blogPost); err != nil {
+		log.Printf("Failed to encode blog post: %v", err)
+	}
 
 	w.WriteHeader(http.StatusCreated)
 }
@@ -218,7 +240,9 @@ func HandleUpdatePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rootSpan.SetTag("error", true)
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		if writeErr != nil {
+			log.Printf("Failed to write error response: %v", writeErr)
+		}
 		return
 	}
 
@@ -229,7 +253,9 @@ func HandleUpdatePost(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		if writeErr != nil {
+			log.Printf("Failed to write error response: %v", writeErr)
+		}
 	}
 
 	enc := json.NewEncoder(w)
@@ -252,7 +278,9 @@ func HandleGetPost(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		if writeErr != nil {
+			log.Printf("Failed to write error response: %v", writeErr)
+		}
 	}
 
 	enc := json.NewEncoder(w)
@@ -273,7 +301,9 @@ func HandleGetPosts(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(`{"error":"` + err.Error() + `"}`))
+		if writeErr != nil {
+			log.Printf("Failed to write error response: %v", writeErr)
+		}
 	}
 
 	enc := json.NewEncoder(w)
