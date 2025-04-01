@@ -264,7 +264,9 @@ func HandleUpdatePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	enc := json.NewEncoder(w)
-	enc.Encode(&blogPost)
+	if err := enc.Encode(&blogPost); err != nil {
+		log.Printf("Failed to encode blog post: %v", err)
+	}
 }
 
 func HandleGetPost(w http.ResponseWriter, r *http.Request) {
@@ -290,8 +292,9 @@ func HandleGetPost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	enc := json.NewEncoder(w)
-	enc.Encode(blogPost)
-
+	if err := enc.Encode(blogPost); err != nil {
+		log.Printf("Failed to encode blog post: %v", err)
+	}
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -314,6 +317,8 @@ func HandleGetPosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	enc := json.NewEncoder(w)
-	enc.Encode(blogPosts)
+	if err := enc.Encode(blogPosts); err != nil {
+		log.Printf("Failed to encode blog post: %v", err)
+	}
 }
 // vim: tabstop=8 shiftwidth=8 expandtab!
