@@ -1,0 +1,40 @@
+# bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/entity v0.0.0-20200212143642-fce1109b096a
+bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/entity
+# bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/logservice v0.0.0-20200212143642-fce1109b096a
+bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/logservice/loghelper
+# bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/util v0.0.0-20200212143642-fce1109b096a
+bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/util
+# github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd
+github.com/codahale/hdrhistogram
+# github.com/jinzhu/gorm v1.9.2
+github.com/jinzhu/gorm
+# github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a
+github.com/jinzhu/inflection
+# github.com/opentracing/opentracing-go v1.0.2
+github.com/opentracing/opentracing-go
+github.com/opentracing/opentracing-go/ext
+github.com/opentracing/opentracing-go/log
+# github.com/pkg/errors v0.8.0
+github.com/pkg/errors
+# github.com/uber/jaeger-client-go v2.15.0+incompatible
+github.com/uber/jaeger-client-go
+github.com/uber/jaeger-client-go/config
+github.com/uber/jaeger-client-go/internal/baggage
+github.com/uber/jaeger-client-go/internal/baggage/remote
+github.com/uber/jaeger-client-go/internal/spanlog
+github.com/uber/jaeger-client-go/internal/throttler
+github.com/uber/jaeger-client-go/internal/throttler/remote
+github.com/uber/jaeger-client-go/log
+github.com/uber/jaeger-client-go/rpcmetrics
+github.com/uber/jaeger-client-go/thrift
+github.com/uber/jaeger-client-go/thrift-gen/agent
+github.com/uber/jaeger-client-go/thrift-gen/baggage
+github.com/uber/jaeger-client-go/thrift-gen/jaeger
+github.com/uber/jaeger-client-go/thrift-gen/sampling
+github.com/uber/jaeger-client-go/thrift-gen/zipkincore
+github.com/uber/jaeger-client-go/transport
+github.com/uber/jaeger-client-go/utils
+# github.com/uber/jaeger-lib v1.5.0
+github.com/uber/jaeger-lib/metrics
+# golang.org/x/net v0.0.0-20181201002055-351d144fa1fc
+golang.org/x/net/context

@@ -1,0 +1,19 @@
+FROM golang:1.13.7-alpine AS build
+ENV GOPATH /go
+
+WORKDIR /go/src/jaeger-rd/logservice
+
+COPY logservice .
+
+RUN go build -o /go/bin/logservice -mod=vendor
+
+FROM alpine:3.11.3
+COPY --from=build /go/bin/logservice /usr/local/bin
+
+RUN mkdir /log && touch /log/log.txt
+
+EXPOSE 6000
+
+CMD ["logservice", "http://logservice:6000"]
+
+ENTRYPOINT ["usr/local/bin/logservice"]

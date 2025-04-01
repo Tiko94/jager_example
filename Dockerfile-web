@@ -1,0 +1,20 @@
+FROM golang:1.13.7-alpine AS build
+ENV GOPATH /go
+
+WORKDIR /go/src/jaeger-rd/web
+
+COPY web .
+
+RUN go build -o /go/bin/web -mod=vendor
+
+FROM alpine:3.11.3
+COPY --from=build /go/bin/web /usr/local/bin
+COPY static /go/static
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 CMD curl http://localhost:3000 || (echo "Health check failed at $(date)" >&2 && exit 1)
+
+CMD ["-loadbalancer", "http://loadbalancer:2001", "-logservice", "http://"]
+
+ENTRYPOINT ["usr/local/bin/web"]

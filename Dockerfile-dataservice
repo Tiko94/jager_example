@@ -1,0 +1,41 @@
+FROM golang:1.13.7-alpine AS build
+
+ENV GOPATH /go
+WORKDIR /go/src/jaeger-rd/dataservice
+
+COPY dataservice .
+
+RUN go build -o /go/bin/dataservice -mod=vendor
+
+FROM alpine:3.11.3
+
+# Install required dependencies (bash, coreutils, curl)
+RUN apk add --no-cache bash coreutils curl
+
+# Install golang-migrate for DB schema migration
+WORKDIR /tmp
+RUN curl -L -O https://github.com/golang-migrate/migrate/releases/download/v4.8.0/migrate.linux-amd64.tar.gz && \
+    echo "c92ff8b5085b0de4c027c8c3069529c5e097b02e45effc7c21c46d5952bbf509  migrate.linux-amd64.tar.gz" | sha256sum -c - && \
+    tar xzf migrate.linux-amd64.tar.gz && \
+    mv migrate.linux-amd64 /usr/local/bin/migrate && \
+    rm -f migrate.linux-amd64.tar.gz
+
+# Copy the migrations and wait-for script
+COPY db/migrations /migrations
+COPY wait-for /usr/local/bin/
+
+# Copy the compiled binary from the build stage
+COPY --from=build /go/bin/dataservice /usr/local/bin/
+
+# Set environment variables for database connection
+ENV DB_HOST=db
+ENV DB_PORT=3306
+
+# Expose the service port
+EXPOSE 4000
+
+# Ensure wait-for script is executable
+RUN chmod +x /usr/local/bin/wait-for
+
+# Entry point: Wait for DB and then run the dataservice
+ENTRYPOINT ["/usr/local/bin/wait-for", "${DB_HOST}:${DB_PORT}", "--timeout=30", "--", "/usr/local/bin/dataservice"]

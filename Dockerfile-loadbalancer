@@ -1,0 +1,15 @@
+FROM golang:1.13.7-alpine AS build
+ENV GOPATH /go
+
+WORKDIR /go/src/jaeger-rd/loadbalancer
+
+COPY loadbalancer .
+
+RUN go build -o /go/bin/loadbalancer -mod=vendor
+
+FROM alpine:3.11.3
+COPY --from=build /go/bin/loadbalancer /usr/local/bin
+
+EXPOSE 2000 2001
+
+ENTRYPOINT ["usr/local/bin/loadbalancer"]

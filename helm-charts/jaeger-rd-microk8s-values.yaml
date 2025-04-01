@@ -1,0 +1,47 @@
+dataservice:
+  db:
+    host: "blog-mysql"
+    name: "blog"
+    user: "blog"
+    password: "blogadmin123"
+image:
+  pullPolicy: Always
+imagePullSecrets:
+  - name: "ecr-docker-config"
+
+cacheservice:
+  host: "cacheservice"
+  port: "3000"
+
+jaeger:
+  samplerType: "const"
+  samplerParam: "1"
+  samplerManagerHostPort: "jaeger-agent:5778"
+  reporterLogSpans: "true"
+  agentHost: "jaeger-agent"
+  agentPort:: "6831"
+
+jaeger:
+  samplerType: "const"
+  samplerParam: "1"
+  samplerManagerHostPort: "blog-tracing-agent:5778"
+  reporterLogSpans: "true"
+  agentHost: "blog-tracing-agent"
+  agentPort:: "6831"
+
+ingress:
+  enabled: true
+  hosts:
+    - host: "blog.192-168-56-103.nip.io"
+      paths: ["/"]
+
+mysql:
+  enabled: true
+  replication:
+    enabled: false
+  root:
+    password: "admin123"
+  db:
+    name: "blog"
+    user: "blog"
+    password: "blogadmin123"

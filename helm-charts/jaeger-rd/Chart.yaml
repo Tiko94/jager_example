@@ -1,0 +1,15 @@
+apiVersion: v2
+name: jaeger-rd
+description: A Helm chart for Kubernetes
+
+type: application
+dependencies:
+  - name: mysql
+    version: 6.7.5
+    repository: https://charts.bitnami.com/bitnami
+    condition: mysql.enabled
+
+# Do not update version values below, they are set to minimal values to make 'helm lint' happy.
+# Actual versions are set by 'helm package' in the root Makefile when Chart is packaged
+version: 0.0.1
+appVersion: 0.0.1

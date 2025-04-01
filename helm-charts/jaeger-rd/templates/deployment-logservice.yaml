@@ -1,0 +1,48 @@
+{{/* vim: set filetype=helm: */}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jaeger-rd.fullname" . }}-logservice
+  labels:
+    {{- include "jaeger-rd.logservice.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.logservice.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "jaeger-rd.logservice.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jaeger-rd.logservice.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "jaeger-rd.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-logservice
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repositoryBase }}/{{ .Values.logservice.imageName }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.logservice.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.logservice.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

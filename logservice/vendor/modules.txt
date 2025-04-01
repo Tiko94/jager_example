@@ -1,0 +1,6 @@
+# bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/entity v0.0.0-20200212142030-2f9bc5ae4ce2
+bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/entity
+# github.com/jinzhu/gorm v1.9.2
+github.com/jinzhu/gorm
+# github.com/jinzhu/inflection v0.0.0-20180308033659-04140366298a
+github.com/jinzhu/inflection

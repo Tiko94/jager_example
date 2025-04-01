@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "jaeger-rd.fullname" . }}-db-migrations"
+  labels:
+{{ include "jaeger-rd.commonLabels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": post-install
+spec:
+{{- with .Values.imagePullSecrets }}
+  imagePullSecrets:
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+  containers:
+    - name: migrations
+      image: "{{ .Values.image.repositoryBase }}/{{ .Values.dataservice.imageName }}:{{ .Chart.AppVersion }}"
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      command: ["/usr/local/bin/wait-for"]
+      args:
+        - "$(DB_HOST):$(DB_PORT)"
+        - "--timeout=120"
+        - "--"
+        - "/usr/local/bin/migrate"
+        - "-database"
+        - "mysql://$(DB_USER):$(DB_PASSWORD)@tcp($(DB_HOST):$(DB_PORT))/$(DB_NAME)"
+        - "-path=/migrations/"
+        - "up"
+      env:
+        - name: DB_HOST
+          value: "{{ .Values.dataservice.db.host }}"
+        - name: DB_PORT
+          value: "{{ .Values.dataservice.db.port }}"
+        - name: DB_USER
+          value: "{{ .Values.dataservice.db.user }}"
+        - name: DB_PASSWORD
+          value: "{{ .Values.dataservice.db.password }}"
+        - name: DB_NAME
+          value: "{{ .Values.dataservice.db.name }}"
+  restartPolicy: Never

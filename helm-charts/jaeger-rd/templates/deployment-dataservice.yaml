@@ -1,0 +1,81 @@
+{{/* vim: set filetype=helm: */}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "jaeger-rd.fullname" . }}-dataservice
+  labels:
+    {{- include "jaeger-rd.dataservice.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.dataservice.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "jaeger-rd.dataservice.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "jaeger-rd.dataservice.selectorLabels" . | nindent 8 }}
+    spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+      serviceAccountName: {{ include "jaeger-rd.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-dataservice
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repositoryBase }}/{{ .Values.dataservice.imageName }}:{{ .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.dataservice.listenPort }}
+              protocol: TCP
+          env:
+            - name: LISTEN_PORT
+              value: "{{ .Values.dataservice.listenPort }}"
+            - name: DB_HOST
+              value: "{{ .Values.dataservice.db.host }}"
+            - name: DB_PORT
+              value: "{{ .Values.dataservice.db.port }}"
+            - name: DB_USER
+              value: "{{ .Values.dataservice.db.user }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.dataservice.db.password }}"
+            - name: DB_NAME
+              value: "{{ .Values.dataservice.db.name }}"
+            - name: JAEGER_SAMPLER_TYPE
+              value: "{{ .Values.jaeger.samplerType }}"
+            - name: JAEGER_SAMPLER_PARAM
+              value: "{{ .Values.jaeger.samplerParam }}"
+            - name: JAEGER_SAMPLER_MANAGER_HOST_PORT
+              value: "{{ .Values.jaeger.samplerManagerHostPort }}"
+            - name: JAEGER_REPORTER_LOG_SPANS
+              value: "{{ .Values.jaeger.reporterLogSpans }}"
+            - name: JAEGER_AGENT_HOST
+              value: "{{ .Values.jaeger.agentHost }}"
+            - name: JAEGER_AGENT_PORT
+              value: "{{ .Values.jaeger.agentPort }}"
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: http
+          resources:
+            {{- toYaml .Values.dataservice.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

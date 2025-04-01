@@ -1,0 +1,16 @@
+{{/* vim: set filetype=helm: */}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "jaeger-rd.fullname" . }}-logservice
+  labels:
+    {{- include "jaeger-rd.logservice.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.logservice.service.type }}
+  ports:
+    - port: {{ .Values.logservice.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "jaeger-rd.logservice.selectorLabels" . | nindent 4 }}
