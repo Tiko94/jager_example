@@ -175,6 +175,7 @@ func HandleCreateComment(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusBadRequest)
+		_, writeErr := w.Write([]byte(`{"error": "Unknown request"}`))
 		if writeErr != nil {
 			log.Printf("Failed to write error response: %v", writeErr)
 		}
@@ -198,6 +199,7 @@ func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rootSpan.SetTag("error", true)
 		w.WriteHeader(http.StatusBadRequest)
+		_, writeErr := w.Write([]byte(`{"error": "Unknown request"}`))
 		if writeErr != nil {
 			log.Printf("Failed to write error response: %v", writeErr)
 		}
@@ -211,6 +213,7 @@ func HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusBadRequest)
+		_, writeErr := w.Write([]byte(`{"error": "Unknown request"}`))
 		if writeErr != nil {
 			log.Printf("Failed to write error response: %v", writeErr)
 		}
@@ -240,6 +243,7 @@ func HandleUpdatePost(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rootSpan.SetTag("error", true)
 		w.WriteHeader(http.StatusBadRequest)
+		_, writeErr := w.Write([]byte(`{"error": "Unknown request"}`))
 		if writeErr != nil {
 			log.Printf("Failed to write error response: %v", writeErr)
 		}
@@ -253,6 +257,7 @@ func HandleUpdatePost(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusBadRequest)
+		_, writeErr := w.Write([]byte(`{"error": "Unknown request"}`))
 		if writeErr != nil {
 			log.Printf("Failed to write error response: %v", writeErr)
 		}
@@ -278,6 +283,7 @@ func HandleGetPost(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusNotFound)
+		_, writeErr := w.Write([]byte(`{"error": "Unknown request"}`))
 		if writeErr != nil {
 			log.Printf("Failed to write error response: %v", writeErr)
 		}
@@ -301,6 +307,7 @@ func HandleGetPosts(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.WriteHeader(http.StatusNotFound)
+		_, writeErr := w.Write([]byte(`{"error": "Unknown request"}`))
 		if writeErr != nil {
 			log.Printf("Failed to write error response: %v", writeErr)
 		}
