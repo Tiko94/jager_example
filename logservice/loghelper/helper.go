@@ -33,6 +33,6 @@ func WriteEntry(entry *entity.LogEntry) {
 	resp, err := client.Do(req)
 	if err != nil {
     	// Handle the error here, e.g., log it or return it
-    	log.Printf("Failed to send request: %v", err)
+    	// log.Printf("Failed to send request: %v", err)
 	}
 }
