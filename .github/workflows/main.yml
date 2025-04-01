@@ -21,3 +21,11 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
+
+      - name: Build Go Binaries
+        run: |
+          go build -o bin/dataservice ./dataservice
+          go build -o bin/db ./db
+          go build -o bin/loadbalancer ./loadbalancer
+          go build -o bin/logservice ./logservice
+          go build -o bin/web ./web
