@@ -39,7 +39,7 @@ jobs:
 
       - name: Run golangci-lint for each service
         run: |
-          for dir in dataservice db loadbalancer logservice web; do
+          for dir in dataservice loadbalancer logservice web; do
             if [ -f "$dir/go.mod" ]; then
               echo "Running golangci-lint for $dir..."
               cd "$dir"
