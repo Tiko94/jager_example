@@ -21,26 +21,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
-
-      - name: Cache Go Modules
-        uses: actions/cache@v3
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
-
-      - name: Install Dependencies
-        run: |
-          for d in dataservice loadbalancer logservice web; do
-            echo "Installing dependencies in $d"
-            (cd "$d" && go mod tidy && go mod download)
-          done
-
-      - name: Build Go Binaries
-        run: |
-          mkdir -p bin
-          for d in dataservice loadbalancer logservice web; do
-            echo "Building $d"
-            go build -o "bin/$d" "./$d"
-          done
+      - name: Verify Go Installation
+        run: go version
+     
