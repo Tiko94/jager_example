@@ -27,3 +27,4 @@ jobs:
         with:
           version: latest
           only-new-issues: true
+          args: --out-format=colored-line-number
