@@ -26,5 +26,5 @@ func WriteEntry(entry *entity.LogEntry) {
 
 	req, _ := http.NewRequest(http.MethodPost, *logserviceURL, &buf)
 	client.Do(req)
-	resp, err := client.Do(req)
+	_, _ := client.Do(req)
 }
