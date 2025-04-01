@@ -21,9 +21,32 @@ var tr = http.Transport{
 var client = &http.Client{Transport: &tr}
 
 func WriteEntry(entry *entity.LogEntry) {
-	var buf bytes.Buffer
-	json.NewEncoder(&buf)
+    var buf bytes.Buffer
 
-	req, _ := http.NewRequest(http.MethodPost, *logserviceURL, &buf)
-	client.Do(req)
+    // Encode the entry into the buffer
+    encoder := json.NewEncoder(&buf)
+    if err := encoder.Encode(entry); err != nil {
+        log.Printf("Failed to encode entry: %v", err)
+        return
+    }
+
+    // Create the HTTP request
+    req, err := http.NewRequest(http.MethodPost, *logserviceURL, &buf)
+    if err != nil {
+        log.Printf("Failed to create request: %v", err)
+        return
+    }
+
+    // Make the HTTP request
+    resp, err := client.Do(req)
+    if err != nil {
+        log.Printf("Failed to send request: %v", err)
+        return
+    }
+    defer resp.Body.Close()
+
+    // Optionally, you can check the response status
+    if resp.StatusCode != http.StatusOK {
+        log.Printf("Request failed with status: %v", resp.Status)
+    }
 }
