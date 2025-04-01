@@ -62,7 +62,10 @@ func main() {
 	http.HandleFunc("/posts", HandleRequest)
 	http.HandleFunc("/healthcheck", HandleHealthcheck)
 
-	http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", listen_port), new(util.GzipHandler))
+	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", listen_port), new(util.GzipHandler))
+	if err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
 
 var (
