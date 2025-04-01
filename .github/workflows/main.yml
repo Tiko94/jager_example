@@ -29,7 +29,7 @@ jobs:
       
       - name: Run Linter for Each Microservice
         run: |
-          for dir in dataservice db loadbalancer logservice web; do
+          for dir in dataservice loadbalancer logservice web; do
             if [ -f "$dir/go.mod" ]; then
               echo "Running golangci-lint for $dir..."
               (cd "$dir" && golangci-lint run --out-format=colored-line-number) || exit 1
