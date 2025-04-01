@@ -8,3 +8,10 @@ push:
       - main
     workflow_dispatch:
 
+jobs:
+  Setups:
+    name: Setups
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
