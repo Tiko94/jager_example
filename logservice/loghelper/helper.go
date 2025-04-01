@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"net/http"
+	"log"
 
 	"bitbucket.org/asnegovoy-dataart-projects/jaeger-rd/entity"
 )
