@@ -16,11 +16,6 @@ func TestHandleHealthcheck(t *testing.T) {
 		t.Fatalf("Could not create request: %v", err)
 	}
 
-	// Ensure function exists and is properly handled
-	if HandleHealthcheck == nil {
-		t.Fatal("HandleHealthcheck function is not defined")
-	}
-
 	HandleHealthcheck(rr, req)
 
 	if rr.Code != http.StatusOK {
@@ -45,10 +40,6 @@ func TestHandleRequest_BadRequest(t *testing.T) {
 		t.Fatalf("Could not create request: %v", err)
 	}
 
-	if HandleRequest == nil {
-		t.Fatal("HandleRequest function is not defined")
-	}
-
 	HandleRequest(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
@@ -65,10 +56,6 @@ func TestHandleCreatePost_InvalidJSON(t *testing.T) {
 		t.Fatalf("Could not create request: %v", err)
 	}
 
-	if HandleCreatePost == nil {
-		t.Fatal("HandleCreatePost function is not defined")
-	}
-
 	HandleCreatePost(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
@@ -82,10 +69,6 @@ func TestHandleGetComments_InvalidPostID(t *testing.T) {
 	req, err := http.NewRequest("GET", "/posts/invalid/comments", nil)
 	if err != nil {
 		t.Fatalf("Could not create request: %v", err)
-	}
-
-	if HandleGetComments == nil {
-		t.Fatal("HandleGetComments function is not defined")
 	}
 
 	HandleGetComments(rr, req)
