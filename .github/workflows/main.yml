@@ -90,5 +90,5 @@ jobs:
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
-            -Dsonar.sources=dataservice,logservice, web, loadbalancer \
+            -Dsonar.sources=dataservice,logservice,loadbalancer \
             -Dsonar.go.coverage.reportPaths=coverage.out
