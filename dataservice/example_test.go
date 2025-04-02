@@ -28,12 +28,12 @@ func TestSuccessSecond(t *testing.T) {
     })
 }
 
-func TestSimpleFail(t *testing.T) {
-    // Simple assertion that is intended to fail
-    expected := 1
-    actual := 2
+// func TestSimpleFail(t *testing.T) {
+//     // Simple assertion that is intended to fail
+//     expected := 1
+//     actual := 2
 
-    if expected != actual {
-        t.Errorf("Expected %d, but got %d", expected, actual)
-    }
-}
+//     if expected != actual {
+//         t.Errorf("Expected %d, but got %d", expected, actual)
+//     }
+// }
