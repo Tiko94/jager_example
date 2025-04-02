@@ -95,7 +95,7 @@ jobs:
   tests:
     name: Run Dataservice Tests
     runs-on: ubuntu-latest
-    needs: DataserviceLint
+    needs: Sonarscan
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
