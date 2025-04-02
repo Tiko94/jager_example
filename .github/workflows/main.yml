@@ -92,3 +92,20 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
             -Dsonar.sources=dataservice,logservice,web,loadbalancer \
             -Dsonar.go.coverage.reportPaths=coverage.out
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Run Tests
+        run: |
+          cd dataservice
+          go test ./... -v
