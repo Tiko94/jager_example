@@ -69,6 +69,7 @@ jobs:
     Sonar:
       name: Sonarscan
       runs-on: ubuntu-latest
+      needs: Setups
       steps:
       - name: Checkout Code
         uses: actions/checkout@v4
