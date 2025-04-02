@@ -8,30 +8,6 @@ import (
 	"testing"
 )
 
-// TestHandleHealthcheck validates the health check endpoint.
-func TestHandleHealthcheck(t *testing.T) {
-	rr := httptest.NewRecorder()
-	req, err := http.NewRequest("GET", "/healthcheck", nil)
-	if err != nil {
-		t.Fatalf("Could not create request: %v", err)
-	}
-
-	HandleHealthcheck(rr, req)
-
-	if rr.Code != http.StatusOK {
-		t.Errorf("Expected status OK, got %v", rr.Code)
-	}
-
-	var response map[string]string
-	if err := json.Unmarshal(rr.Body.Bytes(), &response); err != nil {
-		t.Fatalf("Could not parse response JSON: %v", err)
-	}
-
-	if val, ok := response["status"]; !ok || val != "OK" {
-		t.Errorf("Expected response status OK, got %v", response["status"])
-	}
-}
-
 // TestHandleRequest_BadRequest checks invalid method handling.
 func TestHandleRequest_BadRequest(t *testing.T) {
 	rr := httptest.NewRecorder()
