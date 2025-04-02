@@ -8,68 +8,89 @@ import (
 	"testing"
 )
 
+// TestHandleHealthcheck validates the health check endpoint.
 func TestHandleHealthcheck(t *testing.T) {
 	rr := httptest.NewRecorder()
-	r, err := http.NewRequest("GET", "/healthcheck", nil)
+	req, err := http.NewRequest("GET", "/healthcheck", nil)
 	if err != nil {
 		t.Fatalf("Could not create request: %v", err)
 	}
 
-	HandleHealthcheck(rr, r)
+	// Ensure function exists and is properly handled
+	if HandleHealthcheck == nil {
+		t.Fatal("HandleHealthcheck function is not defined")
+	}
+
+	HandleHealthcheck(rr, req)
 
 	if rr.Code != http.StatusOK {
-		t.Errorf("expected status OK, got %v", rr.Code)
+		t.Errorf("Expected status OK, got %v", rr.Code)
 	}
 
 	var response map[string]string
 	if err := json.Unmarshal(rr.Body.Bytes(), &response); err != nil {
-		t.Fatalf("Could not parse response: %v", err)
+		t.Fatalf("Could not parse response JSON: %v", err)
 	}
 
-	if response["status"] != "OK" {
-		t.Errorf("expected status OK, got %v", response["status"])
+	if val, ok := response["status"]; !ok || val != "OK" {
+		t.Errorf("Expected response status OK, got %v", response["status"])
 	}
 }
 
+// TestHandleRequest_BadRequest checks invalid method handling.
 func TestHandleRequest_BadRequest(t *testing.T) {
 	rr := httptest.NewRecorder()
-	r, err := http.NewRequest("DELETE", "/posts", nil)
+	req, err := http.NewRequest("DELETE", "/posts", nil)
 	if err != nil {
 		t.Fatalf("Could not create request: %v", err)
 	}
 
-	HandleRequest(rr, r)
+	if HandleRequest == nil {
+		t.Fatal("HandleRequest function is not defined")
+	}
+
+	HandleRequest(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
-		t.Errorf("expected status BadRequest, got %v", rr.Code)
+		t.Errorf("Expected status BadRequest (400), got %v", rr.Code)
 	}
 }
 
+// TestHandleCreatePost_InvalidJSON validates invalid JSON handling.
 func TestHandleCreatePost_InvalidJSON(t *testing.T) {
 	rr := httptest.NewRecorder()
-	invalidJSON := strings.NewReader("{invalid json}")
-	r, err := http.NewRequest("POST", "/posts", invalidJSON)
+	invalidJSON := strings.NewReader("{invalid json}") // malformed JSON
+	req, err := http.NewRequest("POST", "/posts", invalidJSON)
 	if err != nil {
 		t.Fatalf("Could not create request: %v", err)
 	}
 
-	HandleCreatePost(rr, r)
+	if HandleCreatePost == nil {
+		t.Fatal("HandleCreatePost function is not defined")
+	}
+
+	HandleCreatePost(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
-		t.Errorf("expected status BadRequest, got %v", rr.Code)
+		t.Errorf("Expected status BadRequest (400) for invalid JSON, got %v", rr.Code)
 	}
 }
 
+// TestHandleGetComments_InvalidPostID tests handling of invalid post IDs.
 func TestHandleGetComments_InvalidPostID(t *testing.T) {
 	rr := httptest.NewRecorder()
-	r, err := http.NewRequest("GET", "/posts/invalid/comments", nil)
+	req, err := http.NewRequest("GET", "/posts/invalid/comments", nil)
 	if err != nil {
 		t.Fatalf("Could not create request: %v", err)
 	}
 
-	HandleGetComments(rr, r)
+	if HandleGetComments == nil {
+		t.Fatal("HandleGetComments function is not defined")
+	}
+
+	HandleGetComments(rr, req)
 
 	if rr.Code != http.StatusBadRequest {
-		t.Errorf("expected status BadRequest, got %v", rr.Code)
+		t.Errorf("Expected status BadRequest (400) for invalid post ID, got %v", rr.Code)
 	}
 }
