@@ -85,6 +85,7 @@ jobs:
 
       - name: SonarQube Scan
         run: |
+          echo "::add-mask::${{ secrets.SONAR_URL }}"
           sonar-scanner \
             -Dsonar.host.url=${{ secrets.SONAR_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
