@@ -148,8 +148,6 @@ jobs:
       - name: Build and Push Docker Compose Services
         run: |
           REPO_NAME="jager"
-          ECR_REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
-
           for service in $(docker compose -f docker-compose.yaml config --services); do
             echo "Building and pushing service: $service"
           
@@ -157,9 +155,9 @@ jobs:
             docker compose -f docker-compose.yaml build $service
           
             # Tag the image with the ECR repository URI
-            docker tag ${service}:latest ${ECR_REGISTRY}/${REPO_NAME}/${service}:latest
+            docker tag ${service}:latest ${secrets.ECR_REGISTRY}/${REPO_NAME}/${service}:latest
           
             # Push the image to ECR
-            docker push ${ECR_REGISTRY}/${REPO_NAME}/${service}:latest
+            docker push ${secrets.ECR_REGISTRY}/${REPO_NAME}/${service}:latest
           done
        
