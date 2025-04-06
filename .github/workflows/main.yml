@@ -142,38 +142,15 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
-      - name: Build Docker Compose Images
-        run: |
-          docker compose -f docker-compose.yaml build
-
-      - name: Tag and Push Images to ECR
-        run: |
-            services=$(docker compose config --services)
-
-            ECR_REPO_NAME=jager  # Single repository for all services
-        
-            # Ensure the repository exists in ECR (this will prevent errors if it doesn't exist)
-            aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" || \
-            aws ecr create-repository --repository-name "$ECR_REPO_NAME"
-
-            # Loop through each service to build and push images to ECR
-            for service in $services; do
-              echo "Processing service: $service"
-          
-              # Build the image for each service using docker-compose
-              docker compose -f docker-compose.yaml build $service
-
-              # Get the image ID of the built service
-              IMAGE_ID=$(docker images --filter=reference="*${service}" --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-
-              if [ -z "$IMAGE_ID" ]; then
-                echo "Image for service $service not found. Skipping..."
-                continue
-              fi
-
-              # Tag the image correctly with the ECR repository name and service name
-              docker tag "$IMAGE_ID" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
-
-              # Push the image to AWS ECR
-              docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
-            done
+      - name: Build & Upload image to ECR
+        uses: appleboy/docker-ecr-action@master
+        with:
+            access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            registry: ${{ secrets.REGISTRY }}
+            repo: jager
+            region: ${{ env.AWS_REGION }}
+            tags: latest,${{ github.run_number }}
+            daemon_off: false
+            dockerfile: ./Dockerfile-logservice
+            context: ./
