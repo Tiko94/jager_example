@@ -153,67 +153,67 @@ jobs:
             registry: ${{ secrets.REGISTRY }}
             repo: ${{ secrets.ECR_REPOSITORY }}
             region: ${{ env.AWS_REGION }}
-            tags: latest,${{ github.run_number }}
+            tags: web:${{ github.run_number }}
             daemon_off: false
             dockerfile: ./Dockerfile-web
             context: ./
 
-      # Build and Push db service image
-      - name: Build and Push db image
-        uses: appleboy/docker-ecr-action@master
-        with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.REGISTRY }}
-          repo: ${{ secrets.ECR_REPOSITORY }}
-          region: ${{ env.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-db
-          context: ./
+      # # Build and Push db service image
+      # - name: Build and Push db image
+      #   uses: appleboy/docker-ecr-action@master
+      #   with:
+      #     access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     registry: ${{ secrets.REGISTRY }}
+      #     repo: ${{ secrets.ECR_REPOSITORY }}
+      #     region: ${{ env.AWS_REGION }}
+      #     tags: latest,${{ github.run_number }}
+      #     daemon_off: false
+      #     dockerfile: ./Dockerfile-db
+      #     context: ./
 
-      # Build and Push dataservice image
-      - name: Build and Push dataservice image
-        uses: appleboy/docker-ecr-action@master
-        with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.REGISTRY }}
-          repo: ${{ secrets.ECR_REPOSITORY }}
-          region: ${{ env.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-dataservice
-          context: ./
+      # # Build and Push dataservice image
+      # - name: Build and Push dataservice image
+      #   uses: appleboy/docker-ecr-action@master
+      #   with:
+      #     access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     registry: ${{ secrets.REGISTRY }}
+      #     repo: ${{ secrets.ECR_REPOSITORY }}
+      #     region: ${{ env.AWS_REGION }}
+      #     tags: latest,${{ github.run_number }}
+      #     daemon_off: false
+      #     dockerfile: ./Dockerfile-dataservice
+      #     context: ./
 
 
-      # Build and Push loadbalancer image
-      - name: Build and Push loadbalancer image
-        uses: appleboy/docker-ecr-action@master
-        with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.REGISTRY }}
-          repo: ${{ secrets.ECR_REPOSITORY }}
-          region: ${{ env.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-loadbalancer
-          context: ./
+      # # Build and Push loadbalancer image
+      # - name: Build and Push loadbalancer image
+      #   uses: appleboy/docker-ecr-action@master
+      #   with:
+      #     access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     registry: ${{ secrets.REGISTRY }}
+      #     repo: ${{ secrets.ECR_REPOSITORY }}
+      #     region: ${{ env.AWS_REGION }}
+      #     tags: latest,${{ github.run_number }}
+      #     daemon_off: false
+      #     dockerfile: ./Dockerfile-loadbalancer
+      #     context: ./
 
-      # Build and Push logservice image
-      - name: Build and Push logservice image
-        uses: appleboy/docker-ecr-action@master
-        with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.REGISTRY }}
-          repo: ${{ secrets.ECR_REPOSITORY }}
-          region: ${{ env.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-logservice
-          context: ./
+      # # Build and Push logservice image
+      # - name: Build and Push logservice image
+      #   uses: appleboy/docker-ecr-action@master
+      #   with:
+      #     access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     registry: ${{ secrets.REGISTRY }}
+      #     repo: ${{ secrets.ECR_REPOSITORY }}
+      #     region: ${{ env.AWS_REGION }}
+      #     tags: latest,${{ github.run_number }}
+      #     daemon_off: false
+      #     dockerfile: ./Dockerfile-logservice
+      #     context: ./
 
 
 
