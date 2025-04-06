@@ -155,9 +155,9 @@ jobs:
             docker compose -f docker-compose.yaml build $service
           
             # Tag the image with the ECR repository URI
-            docker tag ${service}:latest ${secrets.ECR_REGISTRY}/${REPO_NAME}/${service}:latest
+            docker tag "$IMAGE_ID" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
           
             # Push the image to ECR
-            docker push ${secrets.ECR_REGISTRY}/${REPO_NAME}/${service}:latest
+            docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
           done
        
