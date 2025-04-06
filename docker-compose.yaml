@@ -1,6 +1,5 @@
 services:
   db:
-    image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/db:latest
     build: 
       context: .
       dockerfile: Dockerfile-db
@@ -13,7 +12,6 @@ services:
       - mysql_data:/var/lib/mysql
 
   web:
-    image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/web:latest
     build:
       context: .
       dockerfile: Dockerfile-web
@@ -32,7 +30,6 @@ services:
         - logservice
 
   dataservice:
-      image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/dataservice:latest
       build:
         context: .
         dockerfile: Dockerfile-dataservice
@@ -54,7 +51,6 @@ services:
         - db
 
   loadbalancer:
-    image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/loadbalancer:latest
     build:
       context: .
       dockerfile: Dockerfile-loadbalancer
@@ -73,7 +69,6 @@ services:
       - logservice
 
   logservice:
-    image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/logservice:latest
     build:
       context: .
       dockerfile: Dockerfile-logservice
