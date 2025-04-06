@@ -147,7 +147,7 @@ jobs:
 
       - name: Tag and Push Images to ECR
         run: |
-          services=$(docker-compose config --services)
+          services=$(docker compose config --services)
           ECR_REPO_PREFIX=jager
 
           for service in $services; do
