@@ -147,11 +147,19 @@ jobs:
 
       - name: Build and Push Docker Compose Services
         run: |
-          # Loop through all services in the docker-compose.yaml file
-          for service in $(docker compose -f docker-compose.yaml config --services); do
+          REPO_NAME="jager"
+          ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        
+          for service in $(docker-compose -f docker-compose.yml config --services); do
             echo "Building and pushing service: $service"
-            # Build the service using Docker Buildx
-            docker compose -f docker-compose.yaml build $service
-            docker compose -f docker-compose.yaml push $service
+          
+            # Build the service
+            docker-compose -f docker-compose.yml build $service
+          
+            # Tag the image with the ECR repository URI
+            docker tag ${service}:latest ${ECR_REGISTRY}/${REPO_NAME}/${service}:latest
+          
+            # Push the image to ECR
+            docker push ${ECR_REGISTRY}/${REPO_NAME}/${service}:latest
           done
        
