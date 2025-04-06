@@ -147,11 +147,21 @@ jobs:
 
       - name: Tag and Push Images to ECR
         run: |
-          services=$(docker compose config --services)
+          services=$(docker-compose config --services)
+          ECR_REPO_PREFIX=bananakawiarnia
 
           for service in $services; do
-            IMAGE_ID=$(docker images --filter=reference="*${service}" --format "{{.Repository}}:{{.Tag}}" | head -n 1)
-            docker tag $IMAGE_ID ${{ secrets.ECR_REGISTRY }}/$service:latest
-            docker push ${{ secrets.ECR_REGISTRY }}/$service:latest
+            echo "Tagging and pushing $service..."
+
+            image_id=$(docker images --filter=reference="*${service}" --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+
+            if [ -z "$image_id" ]; then
+              echo "Image for service $service not found. Skipping..."
+              continue
+            fi
+
+            docker tag "$image_id" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_PREFIX}/${service}:latest"
+            docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_PREFIX}/${service}:latest"
           done
+
        
