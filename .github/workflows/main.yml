@@ -148,7 +148,7 @@ jobs:
       - name: Build and Push Docker Compose Services
         run: |
           REPO_NAME="jager"
-          ECR_REGISTRY="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+          ECR_REGISTRY="${secrets.AWS_ACCOUNT_ID}.dkr.ecr.${secrets.AWS_REGION}.amazonaws.com"
         
           for service in $(docker compose -f docker-compose.yaml config --services); do
             echo "Building and pushing service: $service"
