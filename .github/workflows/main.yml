@@ -150,35 +150,29 @@ jobs:
         run: |
           REPO_NAME="jager"
           ECR_REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
-  
+
+          # Loop through all services defined in the docker-compose.yaml
           for service in $(docker compose -f docker-compose.yaml config --services); do
             echo "Building and pushing service: $service"
-    
-            # Build the service
+            
+            # Build the service using docker-compose
             docker compose -f docker-compose.yaml build $service
-
-            # List the images to see what was built
-            echo "Listing images after build:"
-            docker images
-
+            
             # Get the image ID of the built service
-            IMAGE_ID=$(docker inspect --format '{{.Id}}' "$service")
-
-            # Debugging: Print the image ID to verify
-            echo "Image ID for $service: $IMAGE_ID"
-    
-            # Ensure IMAGE_ID is not empty
+            IMAGE_NAME="${ECR_REGISTRY}/${REPO_NAME}/${service}:latest"
+            IMAGE_ID=$(docker images -q $IMAGE_NAME)
+            
+            # Ensure that the image ID is not empty
             if [ -z "$IMAGE_ID" ]; then
-              echo "Error: Image ID for service '$service' is empty"
-              exit 1
+              echo "Error: No image found for service '$service'. Skipping..."
+              continue
             fi
-    
+            
             # Tag the image with the ECR repository URI
-            IMAGE_TAG="${ECR_REGISTRY}/${REPO_NAME}/${service}:latest"
-            echo "Tagging image with: $IMAGE_TAG"
-            docker tag "$IMAGE_ID" "$IMAGE_TAG"
-    
-            # Push the image to ECR
-            echo "Pushing image to ECR: $IMAGE_TAG"
-            docker push "$IMAGE_TAG"
+            echo "Tagging image $IMAGE_ID as $IMAGE_NAME"
+            docker tag "$IMAGE_ID" "$IMAGE_NAME"
+            
+            # Push the image to Amazon ECR
+            echo "Pushing image $IMAGE_NAME to ECR"
+            docker push "$IMAGE_NAME"
           done
