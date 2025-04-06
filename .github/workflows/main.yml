@@ -124,55 +124,62 @@ jobs:
           name: dataservice-coverage
           path: dataservice/coverage.out
 
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
-    # needs: tests
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      # Checkout the repository to get the latest code
+      - name: Checkout source code
+        uses: actions/checkout@v2
 
+      # Configure AWS credentials for interaction with ECR and ECS
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Log in to Amazon ECR
-        run: |
-          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+      # Login to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build Docker Compose Images
-        run: |
-          docker compose -f docker-compose.yaml build
+      # Setup Buildx for multi-platform builds and caching
+      - name: Setup Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
 
-      - name: Build and Push Docker Compose Services
-        run: |
-          REPO_NAME="jager"
-          ECR_REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+      # Build and push the Docker images to ECR
+      - name: Build and Push Docker Images
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          cache-from: type=gha,scope=your-image-cache
+          cache-to: type=gha,scope=your-image-cache
+          tags: |
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/db:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/db:latest
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/web:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/web:latest
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/dataservice:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/dataservice:latest
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/loadbalancer:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/loadbalancer:latest
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/logservice:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}/logservice:latest
 
-          # Loop through all services defined in the docker-compose.yaml
-          for service in $(docker compose -f docker-compose.yaml config --services); do
-            echo "Building and pushing service: $service"
-            
-            # Build the service using docker-compose
-            docker compose -f docker-compose.yaml build $service
-            
-            # Get the image ID of the built service
-            IMAGE_NAME="${ECR_REGISTRY}/${REPO_NAME}/${service}:latest"
-            IMAGE_ID=$(docker images -q $IMAGE_NAME)
-            
-            # Ensure that the image ID is not empty
-            if [ -z "$IMAGE_ID" ]; then
-              echo "Error: No image found for service '$service'. Skipping..."
-              continue
-            fi
-            
-            # Tag the image with the ECR repository URI
-            echo "Tagging image $IMAGE_ID as $IMAGE_NAME"
-            docker tag "$IMAGE_ID" "$IMAGE_NAME"
-            
-            # Push the image to Amazon ECR
-            echo "Pushing image $IMAGE_NAME to ECR"
-            docker push "$IMAGE_NAME"
-          done
+      # Install Docker Compose
+      - name: Install Docker Compose
+        run: curl -L https://raw.githubusercontent.com/docker/compose-cli/main/scripts/install/install_linux.sh | sh
+
+      # Setup Docker context to ECS and deploy with Docker Compose
+      - name: Docker Context
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        run: |
+          docker context create ecs ecs-context --from-env
+          docker --context ecs-context compose -f docker-compose.yaml up
