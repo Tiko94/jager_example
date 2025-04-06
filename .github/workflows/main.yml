@@ -162,8 +162,8 @@ jobs:
             docker images
 
             # Get the image ID of the built service
-            IMAGE_ID=$(docker images --filter "reference=$service" -q)
-    
+            IMAGE_ID=$(docker inspect --format '{{.Id}}' "$service")
+
             # Debugging: Print the image ID to verify
             echo "Image ID for $service: $IMAGE_ID"
     
