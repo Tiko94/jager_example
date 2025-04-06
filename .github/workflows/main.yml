@@ -99,31 +99,31 @@ jobs:
     runs-on: ubuntu-latest
     needs: Sonar
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.21'
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
 
-      - name: Force Go to Use Vendor (if needed)
-        run: go env -w GOFLAGS="-mod=vendor"
+    - name: Force Go to Use Vendor (if needed)
+      run: go env -w GOFLAGS="-mod=vendor"
 
-      - name: Run Unit Tests with Coverage (Dataservice)
-        run: |
-          cd dataservice
-          go test -v ./... -coverprofile=coverage.out
+    - name: Run Unit Tests with Coverage (Dataservice)
+      run: |
+        cd dataservice
+        go test -v ./... -coverprofile=coverage.out
 
-      - name: Debug Coverage File
-        run: ls -la dataservice
+    - name: Debug Coverage File
+      run: ls -la dataservice
 
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: dataservice-coverage
-          path: dataservice/coverage.out
-    
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: dataservice-coverage
+        path: dataservice/coverage.out
+
   deploy:
     runs-on: ubuntu-latest
     # needs: tests
@@ -142,16 +142,30 @@ jobs:
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
+      - name: Check Docker Version
+        run: docker --version
+
+      - name: Check Docker Compose Version
+        run: docker compose --version
+
+      - name: List Docker Images
+        run: docker images
+
+      - name: List Docker Compose Services
+        run: docker compose config --services
+
+      - name: List ECR Repositories
+        run: aws ecr describe-repositories --region ${{ secrets.AWS_REGION }}
+
       - name: Build Docker Compose Images
-        run: |
-          docker compose -f docker-compose.yaml build
+        run: docker compose -f docker-compose.yaml build --no-cache
 
       - name: Tag and Push Images to ECR
         run: |
             services=$(docker compose config --services)
 
             ECR_REPO_NAME=jager  # Single repository for all services
-        
+
             # Ensure the repository exists in ECR (this will prevent errors if it doesn't exist)
             aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" || \
             aws ecr create-repository --repository-name "$ECR_REPO_NAME"
@@ -168,7 +182,7 @@ jobs:
 
               if [ -z "$IMAGE_ID" ]; then
                 echo "Image for service $service not found. Skipping..."
-                continue
+               continue
               fi
 
               # Tag the image correctly with the ECR repository name and service name
