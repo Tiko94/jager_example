@@ -147,32 +147,33 @@ jobs:
 
       - name: Tag and Push Images to ECR
         run: |
-          services=$(docker compose config --services)
-          ECR_REPO_PREFIX=jager
+            services=$(docker compose config --services)
 
-          for service in $services; do
-            echo "Processing service: $service"
+            ECR_REPO_PREFIX=bananakawiarnia
 
-            # Create repository in ECR if it doesn't exist
-            aws ecr describe-repositories --repository-names "${ECR_REPO_PREFIX}/${service}" || \
-            aws ecr create-repository --repository-name "${ECR_REPO_PREFIX}/${service}"
-
-            # Build the image for each service
-            docker compose -f docker-compose.yaml build $service
-
-            # Get the image ID of the built service
-            IMAGE_ID=$(docker images --filter=reference="*${service}" --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+            for service in $services; do
+              echo "Processing service: $service"
           
-            if [ -z "$IMAGE_ID" ]; then
-              echo "Image for service $service not found. Skipping..."
-              continue
-            fi
+              # Create repository in ECR if it doesn't exist
+              aws ecr describe-repositories --repository-names "${ECR_REPO_PREFIX}/${service}" || \
+              aws ecr create-repository --repository-name "${ECR_REPO_PREFIX}/${service}"
 
-            # Tag the image for ECR with the correct repository
-            docker tag "$IMAGE_ID" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_PREFIX}/${service}:latest"
-          
-            # Push the image to ECR
-            docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_PREFIX}/${service}:latest"
-          done
+              # Build the image for each service
+              docker compose -f docker-compose.yaml build $service
+
+              # Get the image ID of the built service
+              IMAGE_ID=$(docker images --filter=reference="*${service}" --format "{{.Repository}}:{{.Tag}}" | head -n 1)
+
+              if [ -z "$IMAGE_ID" ]; then
+                echo "Image for service $service not found. Skipping..."
+                continue
+              fi
+
+              # Tag the image for ECR with the correct repository
+              docker tag "$IMAGE_ID" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_PREFIX}/${service}:latest"
+
+              # Push the image to ECR
+              docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_PREFIX}/${service}:latest"
+            done
 
        
