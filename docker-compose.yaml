@@ -1,5 +1,6 @@
 services:
   db:
+    image: db:latest
     build: 
       context: .
       dockerfile: Dockerfile-db
@@ -12,6 +13,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   web:
+    image: web:latest
     build:
       context: .
       dockerfile: Dockerfile-web
@@ -30,6 +32,7 @@ services:
         - logservice
 
   dataservice:
+      image: dataservice:latest
       build:
         context: .
         dockerfile: Dockerfile-dataservice
@@ -51,6 +54,7 @@ services:
         - db
 
   loadbalancer:
+    image: loadbalancer:latest
     build:
       context: .
       dockerfile: Dockerfile-loadbalancer
@@ -69,6 +73,7 @@ services:
       - logservice
 
   logservice:
+    image: logservice:latest
     build:
       context: .
       dockerfile: Dockerfile-logservice
