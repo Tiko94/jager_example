@@ -147,7 +147,7 @@ jobs:
 
       - name: Tag and Push Images to ECR
         run: |
-          services=$(docker-compose config --services)
+          services=$(docker compose config --services)
 
           for service in $services; do
             IMAGE_ID=$(docker images --filter=reference="*${service}" --format "{{.Repository}}:{{.Tag}}" | head -n 1)
