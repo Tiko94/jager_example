@@ -13,7 +13,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   web:
-    image: jager/web:latest
+    image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/web:latest
     build:
       context: .
       dockerfile: Dockerfile-web
