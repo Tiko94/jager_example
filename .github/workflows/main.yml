@@ -145,10 +145,13 @@ jobs:
         run: |
           docker compose -f docker-compose.yaml build
 
-      - name: Tag and Push Images
+      - name: Tag and Push Images to ECR
         run: |
-           for service in web dataservice loadbalancer logservice db; do
-              docker tag ${service}:latest ${{ secrets.ECR_REGISTRY }}/${service}:latest
-              docker push ${{ secrets.ECR_REGISTRY }}/${service}:latest
-            done
+          VERSION=latest
+          
+          for service in web dataservice loadbalancer logservice db; do
+            echo "Tagging and pushing $service..."
+            docker tag ${service}:latest ${{ secrets.ECR_REGISTRY }}/${service}:${VERSION}
+            docker push ${{ secrets.ECR_REGISTRY }}/${service}:${VERSION}
+          done
        
