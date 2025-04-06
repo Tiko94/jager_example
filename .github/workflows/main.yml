@@ -147,18 +147,19 @@ jobs:
 
       - name: Tag and Push Images to ECR
         run: |
-            services=$(docker compose config --services)
+           services=$(docker compose config --services)
 
-            ECR_REPO_PREFIX=jager
+            ECR_REPO_NAME=jager  # Single repository for all services
+        
+            # Ensure the repository exists in ECR (this will prevent errors if it doesn't exist)
+            aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" || \
+            aws ecr create-repository --repository-name "$ECR_REPO_NAME"
 
+            # Loop through each service to build and push images to ECR
             for service in $services; do
               echo "Processing service: $service"
           
-              # Create repository in ECR if it doesn't exist
-              aws ecr describe-repositories --repository-names "${ECR_REPO_PREFIX}/${service}" || \
-              aws ecr create-repository --repository-name "${ECR_REPO_PREFIX}/${service}"
-
-              # Build the image for each service
+              # Build the image for each service using docker-compose
               docker compose -f docker-compose.yaml build $service
 
               # Get the image ID of the built service
@@ -169,11 +170,11 @@ jobs:
                 continue
               fi
 
-              # Tag the image for ECR with the correct repository
-              docker tag "$IMAGE_ID" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_PREFIX}/${service}:latest"
+             # Tag the image with the ECR repository name, including service name and latest tag
+              docker tag "$IMAGE_ID" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
 
-              # Push the image to ECR
-              docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_PREFIX}/${service}:latest"
-            done
+            # Push the image to AWS ECR
+              docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
+            done   
 
        
