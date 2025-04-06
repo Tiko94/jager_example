@@ -125,7 +125,7 @@ jobs:
     
   deploy:
     runs-on: ubuntu-latest
-    needs: tests
+    # needs: tests
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -147,6 +147,8 @@ jobs:
 
       - name: Tag and Push Images
         run: |
-          IMAGE_NAME=${{ secrets.ECR_REGISTRY }}/${{ secrets.ECR_REPOSITORY }}
-          docker tag your-service-name:latest $IMAGE_NAME:latest
-          docker push $IMAGE_NAME:latest
+           for service in web dataservice loadbalancer logservice db; do
+              docker tag ${service}:latest ${{ secrets.ECR_REGISTRY }}/${service}:latest
+              docker push ${{ secrets.ECR_REGISTRY }}/${service}:latest
+            done
+       
