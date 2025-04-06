@@ -1,6 +1,6 @@
 services:
   db:
-    image: jager/db:latest
+    image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/db:latest
     build: 
       context: .
       dockerfile: Dockerfile-db
@@ -32,7 +32,7 @@ services:
         - logservice
 
   dataservice:
-      image: jager/dataservice:latest
+      image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/dataservice:latest
       build:
         context: .
         dockerfile: Dockerfile-dataservice
@@ -54,7 +54,7 @@ services:
         - db
 
   loadbalancer:
-    image: jager/loadbalancer:latest
+    image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/loadbalancer:latest
     build:
       context: .
       dockerfile: Dockerfile-loadbalancer
@@ -73,7 +73,7 @@ services:
       - logservice
 
   logservice:
-    image: jager/logservice:latest
+    image: 493888978651.dkr.ecr.us-east-1.amazonaws.com/jager/logservice:latest
     build:
       context: .
       dockerfile: Dockerfile-logservice
