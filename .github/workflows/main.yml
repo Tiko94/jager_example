@@ -93,36 +93,37 @@ jobs:
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
             -Dsonar.sources=dataservice,logservice,web,loadbalancer \
             -Dsonar.go.coverage.reportPaths=coverage.out
+
   tests:
     name: Run Dataservice Tests
     runs-on: ubuntu-latest
     needs: Sonar
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-    - name: Set up Go
-      uses: actions/setup-go@v5
-      with:
-        go-version: '1.21'
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
 
-    - name: Force Go to Use Vendor (if needed)
-      run: go env -w GOFLAGS="-mod=vendor"
+      - name: Force Go to Use Vendor (if needed)
+        run: go env -w GOFLAGS="-mod=vendor"
 
-    - name: Run Unit Tests with Coverage (Dataservice)
-      run: |
-        cd dataservice
-        go test -v ./... -coverprofile=coverage.out
+      - name: Run Unit Tests with Coverage (Dataservice)
+        run: |
+          cd dataservice
+          go test -v ./... -coverprofile=coverage.out
 
-    - name: Debug Coverage File
-      run: ls -la dataservice
+      - name: Debug Coverage File
+        run: ls -la dataservice
 
-    - name: Upload Coverage Report
-      uses: actions/upload-artifact@v4
-      with:
-        name: dataservice-coverage
-        path: dataservice/coverage.out
-    
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dataservice-coverage
+          path: dataservice/coverage.out
+
   deploy:
     runs-on: ubuntu-latest
     # needs: tests
@@ -156,6 +157,10 @@ jobs:
             # Build the service
             docker compose -f docker-compose.yaml build $service
 
+            # List the images to see what was built
+            echo "Listing images after build:"
+            docker images
+
             # Get the image ID of the built service
             IMAGE_ID=$(docker images --filter "reference=$service" -q)
     
@@ -165,7 +170,7 @@ jobs:
             # Ensure IMAGE_ID is not empty
             if [ -z "$IMAGE_ID" ]; then
               echo "Error: Image ID for service '$service' is empty"
-            exit 1
+              exit 1
             fi
     
             # Tag the image with the ECR repository URI
@@ -177,4 +182,3 @@ jobs:
             echo "Pushing image to ECR: $IMAGE_TAG"
             docker push "$IMAGE_TAG"
           done
-       
