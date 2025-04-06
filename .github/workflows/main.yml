@@ -148,16 +148,33 @@ jobs:
       - name: Build and Push Docker Compose Services
         run: |
           REPO_NAME="jager"
+          ECR_REGISTRY="${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com"
+  
           for service in $(docker compose -f docker-compose.yaml config --services); do
             echo "Building and pushing service: $service"
-          
+    
             # Build the service
             docker compose -f docker-compose.yaml build $service
-          
+
+            # Get the image ID of the built service
+            IMAGE_ID=$(docker images --filter "reference=$service" -q)
+    
+            # Debugging: Print the image ID to verify
+            echo "Image ID for $service: $IMAGE_ID"
+    
+            # Ensure IMAGE_ID is not empty
+            if [ -z "$IMAGE_ID" ]; then
+              echo "Error: Image ID for service '$service' is empty"
+            exit 1
+            fi
+    
             # Tag the image with the ECR repository URI
-            docker tag "$IMAGE_ID" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
-          
+            IMAGE_TAG="${ECR_REGISTRY}/${REPO_NAME}/${service}:latest"
+            echo "Tagging image with: $IMAGE_TAG"
+            docker tag "$IMAGE_ID" "$IMAGE_TAG"
+    
             # Push the image to ECR
-            docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
+            echo "Pushing image to ECR: $IMAGE_TAG"
+            docker push "$IMAGE_TAG"
           done
        
