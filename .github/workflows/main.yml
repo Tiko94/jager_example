@@ -147,7 +147,7 @@ jobs:
 
       - name: Tag and Push Images to ECR
         run: |
-           services=$(docker compose config --services)
+            services=$(docker compose config --services)
 
             ECR_REPO_NAME=jager  # Single repository for all services
         
@@ -167,14 +167,14 @@ jobs:
 
               if [ -z "$IMAGE_ID" ]; then
                 echo "Image for service $service not found. Skipping..."
-                continue
+               continue
               fi
 
-             # Tag the image with the ECR repository name, including service name and latest tag
+              # Tag the image correctly with the ECR repository name and service name
               docker tag "$IMAGE_ID" "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
 
-            # Push the image to AWS ECR
+              # Push the image to AWS ECR
               docker push "${{ secrets.ECR_REGISTRY }}/${ECR_REPO_NAME}/${service}:latest"
-            done   
+            done
 
        
