@@ -153,7 +153,7 @@ jobs:
             registry: ${{ secrets.REGISTRY }}
             repo: ${{ secrets.ECR_REPOSITORY }}
             region: ${{ env.AWS_REGION }}
-            tags: web,${{ github.run_number }}
+            tags: web
             daemon_off: false
             dockerfile: ./Dockerfile-web
             context: ./
@@ -167,7 +167,7 @@ jobs:
           registry: ${{ secrets.REGISTRY }}
           repo: ${{ secrets.ECR_REPOSITORY }}
           region: ${{ env.AWS_REGION }}
-          tags: db,${{ github.run_number }}
+          tags: db
           daemon_off: false
           dockerfile: ./Dockerfile-db
           context: ./
@@ -181,7 +181,7 @@ jobs:
           registry: ${{ secrets.REGISTRY }}
           repo: ${{ secrets.ECR_REPOSITORY }}
           region: ${{ env.AWS_REGION }}
-          tags: dataservice,${{ github.run_number }}
+          tags: dataservice
           daemon_off: false
           dockerfile: ./Dockerfile-dataservice
           context: ./
@@ -196,7 +196,7 @@ jobs:
           registry: ${{ secrets.REGISTRY }}
           repo: ${{ secrets.ECR_REPOSITORY }}
           region: ${{ env.AWS_REGION }}
-          tags: loadbalancer,${{ github.run_number }}
+          tags: loadbalancer
           daemon_off: false
           dockerfile: ./Dockerfile-loadbalancer
           context: ./
@@ -210,7 +210,7 @@ jobs:
           registry: ${{ secrets.REGISTRY }}
           repo: ${{ secrets.ECR_REPOSITORY }}
           region: ${{ env.AWS_REGION }}
-          tags: logservice,${{ github.run_number }}
+          tags: logservice
           daemon_off: false
           dockerfile: ./Dockerfile-logservice
           context: ./
