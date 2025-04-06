@@ -145,82 +145,82 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       # Building images
-      - name: Build and Push DB Image
+      - name: Build & Upload image to ECR
         uses: appleboy/docker-ecr-action@master
         with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.ECR_REGISTRY }}
-          repo: jager
-          region: ${{ secrets.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-db
-          context: ./
+            access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            registry: ${{ secrets.REGISTRY }}
+            repo: actapp
+            region: ${{ env.AWS_REGION }}
+            tags: latest,${{ github.run_number }}
+            daemon_off: false
+            dockerfile: ./Dockerfile-web
+            context: ./
 
-      - name: Build and Push Web Image
-        uses: appleboy/docker-ecr-action@master
-        with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.ECR_REGISTRY }}
-          repo: jager
-          region: ${{ secrets.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-web
-          context: ./
+      # - name: Build and Push Web Image
+      #   uses: appleboy/docker-ecr-action@master
+      #   with:
+      #     access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     registry: ${{ secrets.ECR_REGISTRY }}
+      #     repo: jager
+      #     region: ${{ secrets.AWS_REGION }}
+      #     tags: latest,${{ github.run_number }}
+      #     daemon_off: false
+      #     dockerfile: ./Dockerfile-web
+      #     context: ./
 
-      - name: Build and Push Dataservice Image
-        uses: appleboy/docker-ecr-action@master
-        with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.ECR_REGISTRY }}
-          repo: jager
-          region: ${{ secrets.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-dataservice
-          context: ./
+      # - name: Build and Push Dataservice Image
+      #   uses: appleboy/docker-ecr-action@master
+      #   with:
+      #     access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     registry: ${{ secrets.ECR_REGISTRY }}
+      #     repo: jager
+      #     region: ${{ secrets.AWS_REGION }}
+      #     tags: latest,${{ github.run_number }}
+      #     daemon_off: false
+      #     dockerfile: ./Dockerfile-dataservice
+      #     context: ./
 
-      - name: Build and Push Logservice Image
-        uses: appleboy/docker-ecr-action@master
-        with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.ECR_REGISTRY }}
-          repo: jager
-          region: ${{ secrets.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-logservice
-          context: ./
+      # - name: Build and Push Logservice Image
+      #   uses: appleboy/docker-ecr-action@master
+      #   with:
+      #     access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     registry: ${{ secrets.ECR_REGISTRY }}
+      #     repo: jager
+      #     region: ${{ secrets.AWS_REGION }}
+      #     tags: latest,${{ github.run_number }}
+      #     daemon_off: false
+      #     dockerfile: ./Dockerfile-logservice
+      #     context: ./
 
-      - name: Build and Push Loadbalancer Image
-        uses: appleboy/docker-ecr-action@master
-        with:
-          access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          registry: ${{ secrets.ECR_REGISTRY }}
-          repo: jager
-          region: ${{ secrets.AWS_REGION }}
-          tags: latest,${{ github.run_number }}
-          daemon_off: false
-          dockerfile: ./Dockerfile-loadbalancer
-          context: ./
+      # - name: Build and Push Loadbalancer Image
+      #   uses: appleboy/docker-ecr-action@master
+      #   with:
+      #     access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     registry: ${{ secrets.ECR_REGISTRY }}
+      #     repo: jager
+      #     region: ${{ secrets.AWS_REGION }}
+      #     tags: latest,${{ github.run_number }}
+      #     daemon_off: false
+      #     dockerfile: ./Dockerfile-loadbalancer
+      #     context: ./
 
-      # Install Docker Compose
-      - name: Install Docker Compose
-        run: curl -L https://raw.githubusercontent.com/docker/compose-cli/main/scripts/install/install_linux.sh | sh
+      # # Install Docker Compose
+      # - name: Install Docker Compose
+      #   run: curl -L https://raw.githubusercontent.com/docker/compose-cli/main/scripts/install/install_linux.sh | sh
 
-      # Setup Docker context to ECS and deploy with Docker Compose
-      - name: Docker Context
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
-        run: |
-          docker context create ecs ecs-context --from-env
-          docker --context ecs-context compose -f docker-compose.yaml up
+      # # Setup Docker context to ECS and deploy with Docker Compose
+      # - name: Docker Context
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_REGION: ${{ secrets.AWS_REGION }}
+      #     ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      #   run: |
+      #     docker context create ecs ecs-context --from-env
+      #     docker --context ecs-context compose -f docker-compose.yaml up
