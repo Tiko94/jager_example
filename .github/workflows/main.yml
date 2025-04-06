@@ -1,4 +1,4 @@
-name: Build & Push Docker Images to AWS ECR
+name: Jager CI/CD
 
 on:
   push:
@@ -10,36 +10,148 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  Setups:
+    name: Setups
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up AWS Credentials
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          
+      - name: Verify Go Installation
+        run: go version
+
+  DataserviceLint:
+    name: DataserviceLint
+    runs-on: ubuntu-latest
+    needs: Setups
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Force Go to Use Vendor
+        run: go env -w GOFLAGS="-mod=vendor"
+
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Run golangci-lint for dataservice
+        run: |
+          cd dataservice
+          golangci-lint run --modules-download-mode=vendor --timeout=5m --out-format=colored-line-number
+
+  LogserviceLint:
+    name: LogserviceLint
+    runs-on: ubuntu-latest
+    needs: Setups
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Force Go to Use Vendor
+        run: go env -w GOFLAGS="-mod=vendor"
+
+      - name: Install golangci-lint
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.64.8
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Run golangci-lint for logservice
+        run: |
+          cd logservice
+          golangci-lint run --modules-download-mode=vendor --timeout=5m --out-format=colored-line-number
+
+  Sonar:
+    name: Sonarscan
+    runs-on: ubuntu-latest
+    needs: [DataserviceLint, LogserviceLint]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Setup SonarQube
+        uses: warchant/setup-sonar-scanner@v7
+
+      - name: SonarQube Scan
+        run: |
+          echo "::add-mask::${{ secrets.SONAR_URL }}"
+          sonar-scanner \
+            -Dsonar.host.url=${{ secrets.SONAR_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.sources=dataservice,logservice,web,loadbalancer \
+            -Dsonar.go.coverage.reportPaths=coverage.out
+  tests:
+    name: Run Dataservice Tests
+    runs-on: ubuntu-latest
+    needs: Sonar
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.21'
+
+    - name: Force Go to Use Vendor (if needed)
+      run: go env -w GOFLAGS="-mod=vendor"
+
+    - name: Run Unit Tests with Coverage (Dataservice)
+      run: |
+        cd dataservice
+        go test -v ./... -coverprofile=coverage.out
+
+    - name: Debug Coverage File
+      run: ls -la dataservice
+
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: dataservice-coverage
+        path: dataservice/coverage.out
+    
+  deploy:
+    runs-on: ubuntu-latest
+    # needs: tests
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Log in to ECR
+      - name: Log in to Amazon ECR
         run: |
           aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
-      - name: Build and Push Docker Compose Services
+      - name: Build Docker Compose Images
         run: |
           docker compose -f docker-compose.yaml build
 
-          # List of services to build and push to ECR
-          SERVICES=("db" "web" "dataservice" "loadbalancer" "logservice")
-
-          for SERVICE in "${SERVICES[@]}"; do
-            echo "Pushing image for $SERVICE..."
-
-            # Tag the image with the ECR repo URL
-            docker tag "$SERVICE:latest" "${{ secrets.ECR_REGISTRY }}/jager/$SERVICE:latest"
-
-            # Push the image to ECR
-            docker push "${{ secrets.ECR_REGISTRY }}/jager/$SERVICE:latest"
+      - name: Build and Push Docker Compose Services
+        run: |
+          # Loop through all services in the docker-compose.yaml file
+          for service in $(docker compose -f docker-compose.yaml config --services); do
+            echo "Building and pushing service: $service"
+            # Build the service using Docker Buildx
+            docker compose -f docker-compose.yaml build $service
+            docker compose -f docker-compose.yaml push $service
           done
+       
