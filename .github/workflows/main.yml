@@ -158,7 +158,7 @@ jobs:
             aws ecr create-repository --repository-name "${ECR_REPO_PREFIX}/${service}"
 
             # Build the image for each service
-            docker compose -f docker-compose.yml build $service
+            docker compose -f docker-compose.yaml build $service
 
             # Get the image ID of the built service
             IMAGE_ID=$(docker images --filter=reference="*${service}" --format "{{.Repository}}:{{.Tag}}" | head -n 1)
