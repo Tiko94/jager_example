@@ -1,5 +1,6 @@
 services:
   db:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/db:${IMAGE_VERSION}
     build: 
       context: .
       dockerfile: Dockerfile-db
@@ -12,6 +13,7 @@ services:
       - mysql_data:/var/lib/mysql
 
   web:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/web:${IMAGE_VERSION}
     build:
       context: .
       dockerfile: Dockerfile-web
@@ -30,6 +32,7 @@ services:
         - logservice
 
   dataservice:
+      image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/dataservice:${IMAGE_VERSION}
       build:
         context: .
         dockerfile: Dockerfile-dataservice
@@ -51,6 +54,7 @@ services:
         - db
 
   loadbalancer:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/loadbalancer:${IMAGE_VERSION}
     build:
       context: .
       dockerfile: Dockerfile-loadbalancer
@@ -69,6 +73,7 @@ services:
       - logservice
 
   logservice:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/logservice:${IMAGE_VERSION}
     build:
       context: .
       dockerfile: Dockerfile-logservice
