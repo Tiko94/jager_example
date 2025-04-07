@@ -33,22 +33,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Install Snyk CLI
-        run: |
-          npm install -g snyk  # Install the Snyk CLI
-
-      - name: Snyk Auth
-        run: snyk auth ${{ secrets.SNYK_TOKEN }}
-
-      - name: Run Snyk to check
-        run: |
-          cd dataservice  # Change this to the correct directory if needed
-          snyk test --all-projects --severity-threshold=high --fail-on=upgradable
-
-      - name: Snyk Monitor
-        run: |
-          cd dataservice  # Change this to the correct directory if needed
-          snyk monitor --all-projects --file=go.mod
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/golang@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
   DataserviceLint:
     name: DataserviceLint
