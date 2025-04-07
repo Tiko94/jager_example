@@ -47,10 +47,10 @@ jobs:
           cd dataservice  # Change this to the correct directory if needed
           snyk test --all-projects --severity-threshold=high --fail-on=upgradable
 
-      - name: Snyk Monitor
-        run: |
-          cd dataservice  # Ensure this is the vendor directory
-          snyk monitor --all-projects
+      # - name: Snyk Monitor
+      #   run: |
+      #     cd dataservice  # Ensure this is the vendor directory
+      #     snyk monitor --all-projects
 
   DataserviceLint:
     name: DataserviceLint
