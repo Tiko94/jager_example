@@ -44,6 +44,12 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for golang vulnerabilities
+        uses: snyk/actions/golang@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
       - name: Snyk Test & Monitor Docker Images
         run: |
           services=("dataservice" "db" "web" "loadbalancer" "logservice")
@@ -59,7 +65,7 @@ jobs:
             echo "Snyk Monitoring $service..."
             snyk monitor --docker $service:latest --file=Dockerfile-$service
           done
-          
+
   DataserviceLint:
     name: DataserviceLint
     runs-on: ubuntu-latest
