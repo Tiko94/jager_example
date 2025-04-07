@@ -44,14 +44,14 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk Test dataservice
+      - name: Run Snyk to test Go code
         run: |
-          cd dataservice
+          cd dataservice  # Change to the directory where your Go code is located
           snyk test --all-projects --severity-threshold=high --fail-on=upgradable
 
-      - name: Snyk Monitor dataservice
+      - name: Snyk Monitor Go project
         run: |
-          cd dataservice
+          cd dataservice  # Change to the directory where your Go code is located
           snyk monitor
 
   DataserviceLint:
