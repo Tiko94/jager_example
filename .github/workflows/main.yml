@@ -41,10 +41,14 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      - name: Snyk Auth
-        run: snyk auth ${{ secrets.SNYK_TOKEN }}
-
-
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/golang@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+    
       - name: Snyk Test & Monitor Docker Images
         run: |
           services=("dataservice" "db" "web" "loadbalancer" "logservice")
