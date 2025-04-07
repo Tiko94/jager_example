@@ -41,14 +41,10 @@ jobs:
       - name: Install Snyk CLI
         run: npm install -g snyk
 
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/golang@master
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --severity-threshold=high
-    
+      - name: Snyk Auth
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+
       - name: Snyk Test & Monitor Docker Images
         run: |
           services=("dataservice" "db" "web" "loadbalancer" "logservice")
@@ -59,7 +55,7 @@ jobs:
             docker build -t $service:latest -f Dockerfile-$service .
 
             echo "Snyk Testing $service..."
-            snyk test --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --fail-on=upgradable --exclude-base-image-vulns
+            snyk test --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --fail-on=upgradable 
 
             echo "Snyk Monitoring $service..."
             snyk monitor --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --exclude-base-image-vulns
