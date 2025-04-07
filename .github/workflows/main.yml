@@ -47,7 +47,7 @@ jobs:
       - name: Snyk Test ${{ matrix.service }}
         run: |
           cd ${{ matrix.service }}
-          snyk test --severity-threshold=high --fail-on=upgradable
+          snyk test --all-projects --severity-threshold=high --fail-on=upgradable
 
       - name: Snyk Monitor ${{ matrix.service }}
         run: |
