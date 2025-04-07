@@ -39,18 +39,11 @@ jobs:
         run: |
           npm install -g snyk  # Install the Snyk CLI
 
-      - name: Snyk Auth
-        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+      - name: Snyk Test All Go Modules
+        run: snyk test --all-projects --severity-threshold=high --fail-on=upgradable
 
-      - name: Run Snyk to check
-        run: |
-          cd dataservice  # Change this to the correct directory if needed
-          snyk test --all-projects --severity-threshold=high --fail-on=upgradable
-
-      - name: Snyk Monitor
-        run: |
-          cd dataservice  # Ensure this is the vendor directory
-          snyk monitor
+      - name: Snyk Monitor All Go Modules
+        run: snyk monitor --all-projects
 
   DataserviceLint:
     name: DataserviceLint
