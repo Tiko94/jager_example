@@ -44,16 +44,22 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Run Snyk to test Go code
+      - name: Snyk Test & Monitor Docker Images
         run: |
-          cd dataservice  # Change to the directory where your Go code is located
-          snyk test --all-projects --severity-threshold=high --fail-on=upgradable
+          services=("dataservice" "db" "web" "loadbalancer" "logservice")
 
-      - name: Snyk Monitor Go project
-        run: |
-          cd dataservice  # Change to the directory where your Go code is located
-          snyk monitor
+          for service in "${services[@]}"
+          do
+            echo "Building $service..."
+            docker build -t $service:latest -f Dockerfile-$service .
 
+            echo "Snyk Testing $service..."
+            snyk test --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --fail-on=upgradable
+
+            echo "Snyk Monitoring $service..."
+            snyk monitor --docker $service:latest --file=Dockerfile-$service
+          done
+          
   DataserviceLint:
     name: DataserviceLint
     runs-on: ubuntu-latest
