@@ -33,16 +33,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Setup Snyk
-        uses: snyk/actions/setup@master
+      - name: Run Snyk to check
+        uses: snyk/actions/golang@master
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-
-      - name: Snyk Test Whole App
-        run: snyk test --all-projects --severity-threshold=high --fail-on=upgradable
-
-      - name: Snyk Monitor
-        run: snyk monitor --all-projects
 
   DataserviceLint:
     name: DataserviceLint
@@ -68,7 +62,7 @@ jobs:
   LogserviceLint:
     name: LogserviceLint
     runs-on: ubuntu-latest
-    needs: Setups
+    needs: Snyk
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
