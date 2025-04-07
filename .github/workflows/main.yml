@@ -48,7 +48,7 @@ jobs:
       - name: Snyk Monitor
         run: |
           cd dataservice  # Change this to the correct directory if needed
-          snyk monitor --all-projects
+          snyk monitor --all-projects --file=go.mod
 
   DataserviceLint:
     name: DataserviceLint
