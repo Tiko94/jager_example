@@ -214,4 +214,4 @@ jobs:
           tags: logservice
           daemon_off: false
           dockerfile: ./Dockerfile-logservice
-          context: ./\
+          context: ./
