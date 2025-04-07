@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: Setups
 
-    # strategy:
-    #   matrix:
-    #     service: [dataservice, logservice, web, loadbalancer]
+    strategy:
+      matrix:
+        service: [dataservice, logservice, web, loadbalancer]
 
     steps:
       - name: Checkout Code
@@ -44,10 +44,20 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
+      - name: Snyk Test ${{ matrix.service }}
+        run: |
+          cd ${{ matrix.service }}
+          snyk test --severity-threshold=high --fail-on=upgradable
+
+      - name: Snyk Monitor ${{ matrix.service }}
+        run: |
+          cd ${{ matrix.service }}
+          snyk monitor
+
 
       - name: Snyk Test & Monitor Docker Images
         run: |
-          services=("db")
+          services=("dataservice" "db" "web" "loadbalancer" "logservice")
 
           for service in "${services[@]}"
           do
@@ -55,7 +65,7 @@ jobs:
             docker build -t $service:latest -f Dockerfile-$service .
 
             echo "Snyk Testing $service..."
-            snyk test --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --fail-on=upgradable 
+            snyk test --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --fail-on=upgradable
 
             echo "Snyk Monitoring $service..."
             snyk monitor --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --exclude-base-image-vulns
