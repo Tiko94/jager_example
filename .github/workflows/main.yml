@@ -30,9 +30,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: Setups
 
-    strategy:
-      matrix:
-        service: [dataservice, logservice, web, loadbalancer]
+    # strategy:
+    #   matrix:
+    #     service: [dataservice, logservice, web, loadbalancer]
 
     steps:
       - name: Checkout Code
@@ -44,16 +44,11 @@ jobs:
       - name: Snyk Auth
         run: snyk auth ${{ secrets.SNYK_TOKEN }}
 
-      - name: Snyk Test ${{ matrix.service }}
-        run: |
-          cd ${{ matrix.service }}
-          snyk test --severity-threshold=high --fail-on=upgradable
-
-      - name: Snyk Monitor ${{ matrix.service }}
-        run: |
-          cd ${{ matrix.service }}
-          snyk monitor
-
+      - uses: actions/checkout@master
+      - name: Run Snyk to check for golang vulnerabilities
+        uses: snyk/actions/golang@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
       - name: Snyk Test & Monitor Docker Images
         run: |
@@ -68,7 +63,7 @@ jobs:
             snyk test --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --fail-on=upgradable
 
             echo "Snyk Monitoring $service..."
-            snyk monitor --docker $service:latest --file=Dockerfile-$service --severity-threshold=high --exclude-base-image-vulns
+            snyk monitor --docker $service:latest --file=Dockerfile-$service 
           done
 
   DataserviceLint:
