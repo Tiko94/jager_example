@@ -29,21 +29,30 @@ jobs:
     name: Snyk
     runs-on: ubuntu-latest
     needs: Setups
+
+    strategy:
+      matrix:
+        service: [dataservice, logservice, web, loadbalancer]
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Force Go to Use Vendor
-        run: go env -w GOFLAGS="-mod=vendor"
       - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Snyk Auth
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Snyk Test ${{ matrix.service }}
         run: |
-          npm install -g snyk  # Install the Snyk CLI
+          cd ${{ matrix.service }}
+          snyk test --severity-threshold=high --fail-on=upgradable
 
-      - name: Snyk Test All Go Modules
-        run: snyk test --all-projects --severity-threshold=high --fail-on=upgradable
-
-      - name: Snyk Monitor All Go Modules
-        run: snyk monitor --all-projects
+      - name: Snyk Monitor ${{ matrix.service }}
+        run: |
+          cd ${{ matrix.service }}
+          snyk monitor
 
   DataserviceLint:
     name: DataserviceLint
