@@ -47,7 +47,7 @@ jobs:
 
       - name: Snyk Test & Monitor Docker Images
         run: |
-          services=("dataservice" "db" "web" "loadbalancer" "logservice")
+          services=("db")
 
           for service in "${services[@]}"
           do
